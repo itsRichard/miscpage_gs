@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glinted | Interactive Market Opportunity Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Gold -->
+    <!-- Application Structure Plan: A single-page dashboard with a sticky navigation bar for non-linear exploration. The structure is designed for a business user (investor, founder) to quickly grasp the key metrics and then dive into specific areas of interest (Market, Customer, Financials, Competition, Strategy). This thematic approach is more user-friendly than the linear report format, allowing users to follow their own analytical path. Key interactions include an interactive market size calculator and dynamic charts to make the data exploration engaging and memorable. -->
+    <!-- Visualization & Content Choices: 
+        - Romantasy Growth: Report Info -> NYT Bestseller % -> Goal: Show change -> Viz: Line Chart -> Interaction: Hover tooltips -> Justification: Best for time-series data -> Library: Chart.js.
+        - TAM Funnel: Report Info -> Population funnel data -> Goal: Explain calculation -> Viz: HTML/CSS funnel diagram -> Interaction: Hover to see source -> Justification: More intuitive than a table.
+        - SOM Projection: Report Info -> Revenue projection data -> Goal: Allow scenario analysis -> Viz: Slider + Bar Chart -> Interaction: Drag slider to update chart/text -> Justification: Highly engaging, makes financials tangible -> Library: Chart.js.
+        - Competitor Matrix: Report Info -> Competitor data -> Goal: Compare positioning -> Viz: HTML/CSS cards -> Interaction: N/A (visual comparison) -> Justification: Visually appealing and mobile-friendly.
+        - Geographic Targets: Report Info -> Top 10 cities -> Goal: Organize info -> Viz: Clickable list -> Interaction: Click to reveal details -> Justification: Progressive disclosure of info.
+        - GTM Roadmap: Report Info -> Phased plan -> Goal: Organize timeline -> Viz: HTML/CSS timeline -> Interaction: N/A (visual flow) -> Justification: Clear, standard way to show phased strategy. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #FDFBF8; }
+        h1, h2, h3 { font-family: 'Cormorant Garamond', serif; }
+        .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .nav-link:hover { color: #A37E2C; }
+        .nav-link.active { color: #A37E2C; border-bottom-color: #A37E2C; }
+        .stat-card { transition: transform 0.3s, box-shadow 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #A37E2C; cursor: pointer; border-radius: 50%; }
+        .slider::-moz-range-thumb { width: 20px; height: 20px; background: #A37E2C; cursor: pointer; border-radius: 50%; }
+        .tab.active { background-color: #A37E2C; color: #FFFFFF; }
+        .fade-in { animation: fadeIn 0.8s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#FDFBF8] text-gray-700">
+
+    <nav id="navbar" class="sticky top-0 z-50 bg-[#FDFBF8]/80 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-2xl font-bold text-gray-800">Glinted <span class="text-lg font-light text-gray-500">| The Opportunity</span></h1>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#market" class="nav-link border-b-2 border-transparent pb-1">Market Pulse</a>
+                    <a href="#customer" class="nav-link border-b-2 border-transparent pb-1">The Buyer</a>
+                    <a href="#size" class="nav-link border-b-2 border-transparent pb-1">Market Size</a>
+                    <a href="#competition" class="nav-link border-b-2 border-transparent pb-1">Competition</a>
+                    <a href="#strategy" class="nav-link border-b-2 border-transparent pb-1">Go-to-Market</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <header class="text-center py-16 fade-in">
+            <h1 class="text-5xl md:text-7xl font-bold text-gray-800 tracking-tight">The Romantasy Gold Rush</h1>
+            <p class="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-gray-600">A new cultural juggernaut has created a multi-million dollar opening for high-end, story-driven jewelry. This is the market opportunity for Glinted.</p>
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="stat-card bg-white/50 p-6 rounded-lg border border-gray-200/50">
+                    <div class="text-4xl font-bold text-[#A37E2C]">5.5M</div>
+                    <div class="mt-1 text-gray-600">Addressable US Consumers</div>
+                </div>
+                <div class="stat-card bg-white/50 p-6 rounded-lg border border-gray-200/50">
+                    <div class="text-4xl font-bold text-[#A37E2C]">$1.9M - $9.6M</div>
+                    <div class="mt-1 text-gray-600">Annual Revenue Potential</div>
+                </div>
+                <div class="stat-card bg-white/50 p-6 rounded-lg border border-gray-200/50">
+                    <div class="text-4xl font-bold text-[#A37E2C]">158%</div>
+                    <div class="mt-1 text-gray-600">Higher Jewelry Spend by Millennials</div>
+                </div>
+            </div>
+        </header>
+
+        <section id="market" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800">Market Pulse: A Genre Ignited</h2>
+                <p class="mt-3 max-w-2xl mx-auto text-gray-600">The romantasy genre isn't just growing; it's exploding. Fueled by platforms like TikTok, it has become a dominant force in publishing, creating a passionate, built-in audience for inspired products. This chart shows its dramatic rise on the NYT Bestseller List.</p>
+            </div>
+            <div class="bg-white/50 p-4 sm:p-8 rounded-lg shadow-md border border-gray-200/50">
+                <div class="chart-container">
+                    <canvas id="genreGrowthChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="customer" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800">The Buyer: The Millennial Connoisseur</h2>
+                <p class="mt-3 max-w-2xl mx-auto text-gray-600">Your customer is a Millennial woman (29-44) with discretionary income. She's digitally native, highly educated, and seeks authenticity and storytelling in her luxury purchases. She buys jewelry for herself as an emotional investment—a talisman of the stories she loves.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                 <div class="stat-card bg-white/50 p-6 rounded-lg text-center border border-gray-200/50">
+                    <div class="text-4xl mb-2">🎓</div>
+                    <h3 class="text-xl font-semibold text-gray-800">Highly Educated</h3>
+                    <p class="text-gray-600 mt-1">45% of romance readers hold a college degree, indicating higher earning potential.</p>
+                </div>
+                <div class="stat-card bg-white/50 p-6 rounded-lg text-center border border-gray-200/50">
+                    <div class="text-4xl mb-2">💰</div>
+                    <h3 class="text-xl font-semibold text-gray-800">High Spender</h3>
+                    <p class="text-gray-600 mt-1">Spends $203 on jewelry annually, 158% more than the average consumer.</p>
+                </div>
+                <div class="stat-card bg-white/50 p-6 rounded-lg text-center border border-gray-200/50">
+                    <div class="text-4xl mb-2">🎁</div>
+                    <h3 class="text-xl font-semibold text-gray-800">Self-Purchaser</h3>
+                    <p class="text-gray-600 mt-1">51% buy jewelry for themselves, viewing it as a milestone or self-care purchase.</p>
+                </div>
+                <div class="stat-card bg-white/50 p-6 rounded-lg text-center border border-gray-200/50">
+                    <div class="text-4xl mb-2">💖</div>
+                    <h3 class="text-xl font-semibold text-gray-800">Values Story</h3>
+                    <p class="text-gray-600 mt-1">Prioritizes authenticity and emotional resonance over legacy brand names.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="size" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800">Sizing the Prize</h2>
+                <p class="mt-3 max-w-2xl mx-auto text-gray-600">The business case for Glinted is built on a conservative, data-driven model. We start with a broad demographic and apply filters to identify a core Total Addressable Market (TAM), then project potential revenue based on modest market capture rates.</p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-in">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">How We Get to 5.5 Million Fans (TAM)</h3>
+                    <div class="space-y-2">
+                        <div class="p-4 bg-white/40 rounded-lg border border-gray-200/30">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-gray-700">US Millennial Women (29-44)</span>
+                                <span class="font-bold text-gray-800">37.5M</span>
+                            </div>
+                        </div>
+                        <div class="text-center text-gray-400">▼</div>
+                        <div class="p-4 bg-white/50 rounded-lg border border-gray-200/50 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-gray-700">Read Romance (82%)</span>
+                                <span class="font-bold text-gray-800">30.75M</span>
+                            </div>
+                        </div>
+                        <div class="text-center text-gray-400">▼</div>
+                         <div class="p-4 bg-white/60 rounded-lg border border-gray-200/60 shadow-md">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-gray-700">Like Fantasy/Paranormal (40%)</span>
+                                <span class="font-bold text-gray-800">12.3M</span>
+                            </div>
+                        </div>
+                        <div class="text-center text-gray-400">▼</div>
+                        <div class="p-4 bg-white/80 rounded-lg border border-gray-200/80 shadow-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-gray-700">Have Disposable Income (45%)</span>
+                                <span class="font-bold text-[#A37E2C]">5.5M</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white/50 p-6 sm:p-8 rounded-lg shadow-md border border-gray-200/50 fade-in">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2 text-center">Interactive Revenue Projection (SOM)</h3>
+                     <p class="text-center text-gray-600 mb-6">Drag the slider to see how even a tiny market share translates to significant revenue.</p>
+                    <div class="mb-6">
+                        <label for="marketShare" class="block text-center font-medium text-gray-700 mb-2">Market Capture Rate: <span id="marketShareValue" class="font-bold text-[#A37E2C]">0.25%</span></label>
+                        <input type="range" id="marketShare" min="0.1" max="0.5" step="0.01" value="0.25" class="slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div id="projectedCustomers" class="text-3xl md:text-4xl font-bold text-gray-800">13,750</div>
+                            <div class="text-gray-600">Projected Customers</div>
+                        </div>
+                        <div>
+                            <div id="projectedRevenue" class="text-3xl md:text-4xl font-bold text-gray-800">$4.81M</div>
+                            <div class="text-gray-600">Projected Revenue</div>
+                        </div>
+                    </div>
+                     <div class="chart-container mt-4 !h-48 md:!h-64">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="competition" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800">The Competitive Landscape</h2>
+                <p class="mt-3 max-w-2xl mx-auto text-gray-600">The current market is fragmented and focused on low-cost "merch." This creates a clear opportunity for Glinted to establish a new, premium category of "fine fandom jewelry," occupying an uncontested space.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="border-2 border-[#A37E2C] bg-white rounded-lg p-6 shadow-xl relative">
+                    <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-[#A37E2C] text-white px-4 py-1 rounded-full text-sm font-semibold">YOUR NICHE</div>
+                    <h3 class="text-xl font-bold text-gray-800 mt-4">Glinted (Proposed)</h3>
+                    <p class="text-2xl font-semibold text-[#A37E2C] my-2">$200 - $1,000</p>
+                    <p class="text-gray-600">Focus on fine materials (sterling silver, gold, gemstones) and story-driven, "talismanic" designs. Elevates fandom expression to everyday luxury.</p>
+                </div>
+                 <div class="border border-gray-200/80 bg-white/50 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800">Bookish Brands</h3>
+                    <p class="text-2xl font-semibold text-gray-500 my-2">$10 - $75</p>
+                    <p class="text-gray-600">Players like The Bookish Shop & Royal Coven. Jewelry is one part of a broad merch strategy (apparel, mugs). Plated metals, stainless steel.</p>
+                </div>
+                <div class="border border-gray-200/80 bg-white/50 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800">Estori Collective</h3>
+                    <p class="text-2xl font-semibold text-gray-500 my-2">$30 - $140</p>
+                    <p class="text-gray-600">Closest in quality with sterling silver/vermeil, but with a minimalist, dainty aesthetic and broader bookish themes, not specifically romantasy.</p>
+                </div>
+                 <div class="border border-gray-200/80 bg-white/50 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800">Etsy Artisans</h3>
+                    <p class="text-2xl font-semibold text-gray-500 my-2">$15 - $70</p>
+                    <p class="text-gray-600">Vast ecosystem of craft-focused sellers. Materials are typically polymer clay, plated metals. Highly niche but firmly in the "costume" category.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="strategy" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800">Go-to-Market Strategy</h2>
+                <p class="mt-3 max-w-3xl mx-auto text-gray-600">A phased, hybrid approach is recommended. We'll start with a strong digital foundation, then use targeted physical pop-ups to accelerate growth and build community. Marketing will focus on key geographic hubs where romantasy fans concentrate.</p>
+            </div>
+            
+            <div class="grid lg:grid-cols-5 gap-12">
+                <div class="lg:col-span-3">
+                     <h3 class="text-2xl font-semibold text-gray-800 mb-6">Phased Rollout Plan</h3>
+                    <div class="relative pl-8 border-l-2 border-gray-300 space-y-12">
+                        <div class="absolute w-4 h-4 bg-[#A37E2C] rounded-full -left-[9px] top-1"></div>
+                        <div>
+                            <div class="font-bold text-lg text-gray-800">Phase 1 (Months 0-6): Foundation</div>
+                             <p class="text-gray-600">Secure brand, develop initial trope-based collections, build immersive DTC website, and begin seeding community on TikTok/Instagram.</p>
+                        </div>
+                        <div class="absolute w-4 h-4 bg-[#A37E2C] rounded-full -left-[9px] top-[110px]"></div>
+                        <div>
+                            <div class="font-bold text-lg text-gray-800">Phase 2 (Months 6-18): Activation</div>
+                             <p class="text-gray-600">Launch DTC site, run targeted digital ads in key metros, initiate influencer seeding program, and execute first high-impact pop-up at a major romantasy convention.</p>
+                        </div>
+                         <div class="absolute w-4 h-4 bg-[#A37E2C] rounded-full -left-[9px] top-[220px]"></div>
+                        <div>
+                            <div class="font-bold text-lg text-gray-800">Phase 3 (18+ Months): Scale</div>
+                            <p class="text-gray-600">Analyze data to refine offerings, expand to 3-5 conventions annually, and pilot partnerships with specialty romance bookstores.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6">Top 5 Target Markets</h3>
+                    <div class="space-y-3" id="geo-target-container">
+                        <!-- JS will populate this -->
+                    </div>
+                    <div id="geo-details" class="mt-4 p-4 bg-white/60 border border-gray-200/50 rounded-lg min-h-[100px] fade-in">
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 py-6 text-center text-gray-400">
+            <p>&copy; 2024 Glinted Strategic Analysis. For discussion purposes only.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const genreGrowthData = {
+                labels: ['Jan 2019', '2020', '2021', '2022', '2023', 'July 2024'],
+                datasets: [{
+                    label: 'Romantasy Share of NYT Bestseller List',
+                    data: [3.3, 5.0, 7.5, 11.0, 15.2, 18.3],
+                    borderColor: '#A37E2C',
+                    backgroundColor: 'rgba(163, 126, 44, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#A37E2C',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            };
+
+            const genreGrowthCtx = document.getElementById('genreGrowthChart').getContext('2d');
+            new Chart(genreGrowthCtx, {
+                type: 'line',
+                data: genreGrowthData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Percentage (%)' },
+                            grid: { color: 'rgba(0,0,0,0.05)'}
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.formattedValue}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const marketShareSlider = document.getElementById('marketShare');
+            const marketShareValue = document.getElementById('marketShareValue');
+            const projectedCustomers = document.getElementById('projectedCustomers');
+            const projectedRevenue = document.getElementById('projectedRevenue');
+            const revenueChartCtx = document.getElementById('revenueChart').getContext('2d');
+            let revenueChart;
+            
+            const tam = 5500000;
+            const aov = 350;
+
+            function updateProjections() {
+                const share = parseFloat(marketShareSlider.value);
+                const customers = Math.round(tam * (share / 100));
+                const revenue = customers * aov;
+                
+                marketShareValue.textContent = `${share.toFixed(2)}%`;
+                projectedCustomers.textContent = customers.toLocaleString();
+                projectedRevenue.textContent = `$${(revenue / 1000000).toFixed(2)}M`;
+
+                updateRevenueChart(revenue);
+            }
+
+            function updateRevenueChart(revenue) {
+                if (revenueChart) {
+                    revenueChart.data.datasets[0].data = [revenue];
+                    revenueChart.update();
+                }
+            }
+            
+            function initRevenueChart() {
+                 revenueChart = new Chart(revenueChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Projected Revenue'],
+                        datasets: [{
+                            label: 'Annual Revenue',
+                            data: [tam * (parseFloat(marketShareSlider.value) / 100) * aov],
+                            backgroundColor: ['rgba(163, 126, 44, 0.7)'],
+                            borderColor: ['#A37E2C'],
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                             y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + (value / 1000000) + 'M';
+                                    }
+                                }
+                            },
+                             x: {
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+            }
+
+
+            marketShareSlider.addEventListener('input', updateProjections);
+            
+            const geoData = [
+                { city: "Los Angeles, CA", drivers: "Hosts Romantasy BookCon, home to The Ripped Bodice bookstore. A major media and population hub." },
+                { city: "Orlando, FL", drivers: "Hosts Romantasy BookCon and Steamy Lit. A major national travel destination for events." },
+                { city: "New York, NY", drivers: "Home to The Ripped Bodice (Brooklyn). A massive population and media market." },
+                { city: "National Harbor, MD", drivers: "Hosts the major Once Upon a Con event, attracting fans from the affluent D.C. metro area." },
+                { city: "Minneapolis, MN", drivers: "Hosts Fables & Flames Gala, serving as a strong Midwest hub for the fan community." }
+            ];
+
+            const geoContainer = document.getElementById('geo-target-container');
+            const geoDetails = document.getElementById('geo-details');
+
+            geoData.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.textContent = item.city;
+                button.className = 'tab w-full text-left px-4 py-2 rounded-md transition bg-white/50 hover:bg-[#A37E2C]/80 hover:text-white';
+                if (index === 0) {
+                    button.classList.add('active');
+                }
+                button.addEventListener('click', () => {
+                    geoContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    button.classList.add('active');
+                    geoDetails.innerHTML = `<p class="font-semibold">${item.city}</p><p class="text-gray-600 text-sm mt-1">${item.drivers}</p>`;
+                    geoDetails.classList.remove('fade-in');
+                    void geoDetails.offsetWidth; 
+                    geoDetails.classList.add('fade-in');
+                });
+                geoContainer.appendChild(button);
+            });
+            geoDetails.innerHTML = `<p class="font-semibold">${geoData[0].city}</p><p class="text-gray-600 text-sm mt-1">${geoData[0].drivers}</p>`;
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+            const navbar = document.getElementById('navbar');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: `-${navbar.offsetHeight}px`,
+                threshold: 0.3
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+            initRevenueChart();
+            updateProjections();
+        });
+    </script>
+</body>
+</html>
